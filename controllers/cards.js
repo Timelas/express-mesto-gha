@@ -2,7 +2,7 @@ const Card = require('../models/card');
 
 const ERROR_CODE = 400;
 const BAD_REQUEST = 404;
-const SERVER_ERROR = 400;
+const SERVER_ERROR = 500;
 
 const getCards = (req, res) => {
   Card.find({})

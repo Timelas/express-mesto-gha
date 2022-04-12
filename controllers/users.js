@@ -2,7 +2,7 @@ const User = require('../models/user');
 
 const ERROR_COODE = 400;
 const BAD_REQUEST = 404;
-const SERVER_ERROR = 400;
+const SERVER_ERROR = 500;
 
 const getUsers = (req, res) => {
   User.find({})
@@ -66,8 +66,10 @@ const createUsers = (req, res) => {
   const owner = req.user._id;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send({ name: user.name, about: user.about, avatar: user.avatar, owner }, { new: true, runValidators: true }))
-    .catch((err) => {
+    .then((user) => res.send({
+      name: user.name, about: user.about, avatar: user.avatar, owner,
+    },
+    { new: true, runValidators: true })).catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
       } else {
