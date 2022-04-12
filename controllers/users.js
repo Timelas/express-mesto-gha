@@ -19,7 +19,7 @@ const getUsers = (req, res) => {
 const updateUser = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -36,8 +36,10 @@ const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send({ name: user.name, about: user.about, avatar: user.avatar }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_COODE).send({ message: 'Пользователь не найден!' });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
+      } else if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Пользователь не найден!' });
       } else {
         res.status(SERVER_ERROR).send({ message: err.message });
       }
@@ -48,7 +50,7 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const owner = req.user._id;
 
-  User.findByIdAndUpdate(owner, { avatar }, { new: true })
+  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -61,9 +63,10 @@ const updateAvatar = (req, res) => {
 
 const createUsers = (req, res) => {
   const { name, about, avatar } = req.body;
+  const owner = req.user._id;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send({ name: user.name, about: user.about, avatar: user.avatar }))
+    .then((user) => res.send({ name: user.name, about: user.about, avatar: user.avatar, owner }, { new: true, runValidators: true }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
