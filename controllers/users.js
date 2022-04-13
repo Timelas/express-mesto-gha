@@ -11,7 +11,12 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => {
+      if (!user) {
+        throw new NotFound('Такого пользователя не существует');
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные!'));
