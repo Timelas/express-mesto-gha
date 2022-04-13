@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const errorRouter = require('./routes/error');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -18,14 +19,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/', usersRouter);
-app.use('/', cardsRouter);
-
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка по умолчанию' : message });
   next();
 });
+
+app.use('/', usersRouter);
+app.use('/', cardsRouter);
+app.use('/', errorRouter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
