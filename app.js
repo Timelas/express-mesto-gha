@@ -26,7 +26,7 @@ app.use((err, req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.patch('*', (req, res) => {
+app.use('*', (req, res) => {
   res.status(404).send({ message: 'Ошибка по умолчанию' });
 });
 
