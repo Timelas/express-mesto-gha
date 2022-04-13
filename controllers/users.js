@@ -34,7 +34,12 @@ const updateUser = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ name: user.name, about: user.about, avatar: user.avatar }))
+    .then((user) => res.send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: req.user._id,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
