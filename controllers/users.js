@@ -11,19 +11,12 @@ const getUsers = (req, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      res.status(200).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
-      });
-    })
+    .then((user) => res.status(200).send({ user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные!'));
-      } if (err.name === 'CastError') {
-        next(new NotFound('Пользователь с указанным _id не найден!'));
+      } if (err.name === 'TypeError') {
+        next(new NotFound('Пользователь с таким id не найден!'));
       } else {
         next(err);
       }
