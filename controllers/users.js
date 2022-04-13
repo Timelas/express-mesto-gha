@@ -20,7 +20,7 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные!'));
-      } if (err.name === 'TypeError') {
+      } else if (err.name === 'TypeError') {
         next(new NotFound('Пользователь с таким id не найден!'));
       } else {
         next(err);
