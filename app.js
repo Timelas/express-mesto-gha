@@ -26,8 +26,8 @@ app.use((err, req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Ошибка по умолчанию' });
+app.use((req, res) => {
+  res.status(404).send({ message: 'Маршрут не найден' });
 });
 
 app.listen(PORT, () => {
