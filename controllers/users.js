@@ -1,72 +1,37 @@
 const User = require('../models/user');
 
-const ERROR_COODE = 400;
-const BAD_REQUEST = 404;
-const SERVER_ERROR = 500;
+const NotFound = require('../errors/not-found');
+const BadRequest = require('../errors/bad-request');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ users }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: err.message });
-      }
-    });
+    .then((users) => res.status(200).send({ users }))
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
-  const { name, about } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.send({ user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
-      } else if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Пользователь не найден!' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: err.message });
-      }
-    });
-};
-
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      _id: user._id,
-    }))
+    .then((user) => {
+      if (!user) {
+        throw new NotFound('Такого пользователя нет!');
+      }
+      res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
-      } else if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Пользователь не найден!' });
+      if (err.name === 'CastError') {
+        next(new BadRequest('Некорректные данные!'));
       } else {
-        res.status(SERVER_ERROR).send({ message: err.message });
+        next(err);
       }
     });
 };
 
-const updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-  const owner = req.user._id;
-
-  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.send({ user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: err.message });
-      }
-    });
-};
-
-const createUsers = (req, res) => {
+const createUsers = (req, res, next) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
@@ -78,9 +43,38 @@ const createUsers = (req, res) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
+        next(new BadRequest('Некорректные данные'));
       } else {
-        res.status(SERVER_ERROR).send({ message: err.message });
+        next(err);
+      }
+    });
+};
+
+const updateUser = (req, res, next) => {
+  const { name, about } = req.body;
+
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => res.send({ user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные!'));
+      } else {
+        next(err);
+      }
+    });
+};
+
+const updateAvatar = (req, res, next) => {
+  const { avatar } = req.body;
+  const owner = req.user._id;
+
+  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
+    .then((user) => res.send({ user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные!'));
+      } else {
+        next(err);
       }
     });
 };
