@@ -37,7 +37,15 @@ const deleteCardById = (req, res, next) => {
           .catch(next);
       }
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Некорректные данные о карточке!'));
+      } if (err.name === 'TypeError') {
+        next(new NotFound('Карточка не найдена!'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const likeCard = (req, res, next) => {
