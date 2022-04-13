@@ -63,13 +63,15 @@ const updateAvatar = (req, res) => {
 
 const createUsers = (req, res) => {
   const { name, about, avatar } = req.body;
-  const owner = req.user._id;
 
   User.create({ name, about, avatar })
     .then((user) => res.send({
-      name: user.name, about: user.about, avatar: user.avatar, owner,
-    },
-    { new: true, runValidators: true })).catch((err) => {
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      _id: req.user._id,
+    }))
+    .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_COODE).send({ message: 'Некорректные данные!' });
       } else {
