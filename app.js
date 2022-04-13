@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const errorRouter = require('./routes/error');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -27,7 +26,9 @@ app.use((err, req, res, next) => {
 
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.use('/', errorRouter);
+app.patch('*', (req, res) => {
+  res.status(404).send({ message: 'Ошибка по умолчанию' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
