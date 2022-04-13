@@ -60,7 +60,15 @@ const likeCard = (req, res, next) => {
       }
       res.send(card);
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Некорректные данные о карточке!'));
+      } if (err.name === 'TypeError') {
+        next(new NotFound('Карточка не найдена!'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const dislikeCard = (req, res, next) => {
@@ -75,7 +83,15 @@ const dislikeCard = (req, res, next) => {
       }
       res.send(card);
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Некорректные данные о карточке!'));
+      } if (err.name === 'TypeError') {
+        next(new NotFound('Карточка не найдена!'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports = {
