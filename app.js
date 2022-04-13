@@ -21,6 +21,12 @@ app.use((req, res, next) => {
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка по умолчанию' : message });
+  next();
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });

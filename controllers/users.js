@@ -38,7 +38,7 @@ const getUserById = (req, res) => {
       name: user.name,
       about: user.about,
       avatar: user.avatar,
-      _id: req.user._id,
+      _id: user._id,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
