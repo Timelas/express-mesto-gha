@@ -40,7 +40,7 @@ const createUsers = (req, res, next) => {
       avatar: req.body.avatar,
     }))
     .then((user) => {
-      res.status(200).send({
+      res.send({
         data: {
           name: user.name,
           about: user.about,
@@ -79,7 +79,7 @@ const updateAvatar = (req, res, next) => {
   const owner = req.user._id;
 
   User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.ststus(200).send({ user }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Некорректные данные!'));
