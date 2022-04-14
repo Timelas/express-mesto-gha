@@ -2,6 +2,7 @@ const Card = require('../models/card');
 
 const NotFound = require('../errors/not-found');
 const BadRequest = require('../errors/bad-request');
+const NoAccess = require('../errors/no-access');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -31,21 +32,15 @@ const deleteCardById = (req, res, next) => {
     .then((card) => {
       if (!card) {
         throw new NotFound('Карточка не найдена');
+      } else if (card.owner.toString() !== req.user._id) {
+        throw new NoAccess('Вы не можете удалить карточку другого пользователя');
       } else {
         Card.findByIdAndDelete(req.params.cardId)
           .then((cardById) => res.send({ name: cardById.name, link: cardById.link }))
           .catch(next);
       }
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Некорректные данные о карточке!'));
-      } else if (err.name === 'TypeError') {
-        next(new NotFound('Карточка не найдена!'));
-      } else {
-        next(err);
-      }
-    });
+    .catch((err) => { next(err); });
 };
 
 const likeCard = (req, res, next) => {
@@ -61,13 +56,7 @@ const likeCard = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Некорректные данные о карточке!'));
-      } else if (err.name === 'TypeError') {
-        next(new NotFound('Карточка не найдена!'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -84,13 +73,7 @@ const dislikeCard = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Некорректные данные о карточке!'));
-      } else if (err.name === 'TypeError') {
-        next(new NotFound('Карточка не найдена!'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 

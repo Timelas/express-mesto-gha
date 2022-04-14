@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 const usersRouter = require('./routes/users');
+const { login, createUser } = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -10,19 +13,25 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62558071d7da9805867ada74',
-  };
+app.use('/', auth, usersRouter);
+app.use('/', auth, cardsRouter);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8).max(30),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().min(5),
+  }),
+}), createUser);
 
-  next();
-});
-
-app.use('/', usersRouter);
-app.use('/', cardsRouter);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Маршрут не найден' });
-});
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
