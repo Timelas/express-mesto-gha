@@ -24,8 +24,6 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные!'));
-      } else if (err.name === 'TypeError') {
-        next(new NotFound('Пользователь с таким id не найден!'));
       } else {
         next(err);
       }
@@ -66,7 +64,7 @@ const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Некорректные данные!'));
@@ -106,7 +104,7 @@ const login = (req, res, next) => {
     .catch((err) => {
       throw new NotAuth(err.message);
     })
-    .cath(next);
+    .catch(next);
 };
 
 const getUser = (req, res, next) => {

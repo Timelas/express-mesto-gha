@@ -7,6 +7,7 @@ const { login, createUsers } = require('./controllers/users');
 const cardsRouter = require('./routes/cards');
 const NotFound = require('./errors/not-found');
 const { auth } = require('./middlewares/auth');
+const { isValidUrl } = require('./utils/validation');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8).max(30),
+    password: Joi.string().required(),
   }),
 }), login);
 
@@ -27,7 +28,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().min(5),
+    avatar: Joi.string().custom(isValidUrl),
   }),
 }), createUsers);
 

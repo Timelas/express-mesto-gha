@@ -1,5 +1,6 @@
 const cardsRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { isValidUrl } = require('../utils/validation');
 const {
   getCards,
   deleteCardById,
@@ -17,7 +18,7 @@ cardsRouter.delete('/cards/:cardId', celebrate({
 cardsRouter.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().min(5),
+    link: Joi.string().custom(isValidUrl),
   }),
 }), createCards);
 cardsRouter.put('/cards/:cardId/likes', celebrate({
