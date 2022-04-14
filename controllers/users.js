@@ -41,7 +41,16 @@ const createUsers = (req, res, next) => {
       about: req.body.about,
       avatar: req.body.avatar,
     }))
-    .then((user) => res.ststus(200).send({ user }))
+    .then((user) => {
+      res.status(200).send({
+        data: {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        },
+      });
+    })
     .catch((err) => {
       if (err.code === 11000 && err.name === 'MongoServerError') {
         next(new Conflict('Пользователь с таким email уже существует!'));
